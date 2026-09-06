@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block title %}ავტორიზაცია | ადმინ{% endblock %}
+
+{% block content %}
+<div style="min-height:80vh;display:flex;align-items:center;justify-content:center;padding:40px 20px;">
+    <div style="width:100%;max-width:400px;">
+
+        <!-- Logo / Brand -->
+        <div style="text-align:center;margin-bottom:36px;">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="logo" style="height:52px;margin:0 auto 16px;">
+            <h1 style="font-size:22px;font-weight:800;color:var(--text-primary);">ადმინ პანელი</h1>
+            <p style="font-size:13px;color:var(--text-muted);margin-top:6px;">შოთა ჭოლოკავას პორტფოლიო მართვა</p>
+        </div>
+
+        <!-- Login Card -->
+        <div class="surface" style="padding:32px;">
+            <form action="{{ url_for('admin_login') }}" method="POST" style="display:flex;flex-direction:column;gap:20px;">
+
+                <div>
+                    <label class="form-label">მომხმარებლის სახელი</label>
+                    <input type="text" name="username" class="form-input" placeholder="admin" required autocomplete="username">
+                </div>
+
+                <div>
+                    <label class="form-label">პაროლი</label>
+                    <input type="password" name="password" class="form-input" placeholder="••••••••" required autocomplete="current-password">
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width:100%;padding:13px;">
+                    <i class="fa-solid fa-right-to-bracket"></i> შესვლა
+                </button>
+
+            </form>
+        </div>
+
+        <p style="text-align:center;margin-top:20px;font-size:12px;color:var(--text-muted);">
+            <a href="{{ url_for('index') }}" style="color:var(--accent-hover);text-decoration:none;font-weight:600;">
+                <i class="fa-solid fa-arrow-left"></i> პორტფოლიოზე დაბრუნება
+            </a>
+        </p>
+    </div>
+</div>
+{% endblock %}

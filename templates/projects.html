@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% block title %}პროექტები | შოთა ჭოლოკავა{% endblock %}
+
+{% block content %}
+<div class="page-section">
+<div class="container">
+
+    <!-- Header -->
+    <div style="display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:40px;padding-bottom:32px;border-bottom:1px solid var(--border-subtle);">
+        <div>
+            <div class="section-tag"><i class="fa-solid fa-code"></i> SOFTWARE & TECH PROJECTS</div>
+            <h1 class="page-title">ჩემი <span class="gradient-text">პროექტები</span></h1>
+            <p style="color:var(--text-muted);font-size:13px;margin-top:8px;max-width:560px;">
+                პროგრამირების, ვებ-დეველოპმენტის და ხელოვნური ინტელექტის (AI) ფარგლებში შექმნილი პირადი და სასკოლო პროექტები.
+            </p>
+        </div>
+        {% if session.get('admin_logged_in') %}
+        <a href="{{ url_for('admin_new_project') }}" class="btn btn-primary">
+            <i class="fa-solid fa-plus"></i> ახალი პროექტი
+        </a>
+        {% endif %}
+    </div>
+
+    <!-- Projects Grid -->
+    {% if projects %}
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:24px;">
+        {% for proj in projects %}
+        <div class="card" style="display:flex;flex-direction:column;">
+
+            <!-- Cover -->
+            <div style="position:relative;aspect-ratio:16/10;overflow:hidden;background:var(--bg-elevated);" class="img-zoom-wrap">
+                {% if proj.cover_image %}
+                <img class="img-zoom" src="{{ url_for('static', filename='uploads/' + proj.cover_image) }}" alt="{{ proj.title }}" style="width:100%;height:100%;object-fit:cover;">
+                {% else %}
+                <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:40px;background:linear-gradient(135deg,var(--bg-elevated),var(--bg-overlay));color:var(--text-dim);">
+                    <i class="fa-solid fa-code"></i>
+                </div>
+                {% endif %}
+                <span style="position:absolute;top:12px;right:12px;padding:4px 10px;border-radius:8px;background:rgba(8,12,20,0.80);backdrop-filter:blur(8px);font-size:10px;font-weight:700;color:var(--accent-hover);border:1px solid var(--accent-border);">
+                    {{ proj.year }}
+                </span>
+            </div>
+
+            <!-- Body -->
+            <div style="padding:22px;flex:1;display:flex;flex-direction:column;gap:14px;">
+                <h3 style="font-size:16px;font-weight:800;color:var(--text-primary);">{{ proj.title }}</h3>
+                {% if proj.short_desc %}
+                <p style="font-size:12px;color:var(--text-secondary);line-height:1.65;" class="line-clamp-3">{{ proj.short_desc }}</p>
+                {% endif %}
+
+                {% if proj.tech_stack %}
+                <div style="display:flex;flex-wrap:wrap;gap:6px;padding-top:4px;">
+                    {% for tech in proj.tech_stack.split(',') %}
+                    <span class="badge-pill">{{ tech.strip() }}</span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Links -->
+            <div style="padding:16px 22px;border-top:1px solid var(--border-subtle);display:flex;gap:10px;align-items:center;">
+                {% if proj.demo_link %}
+                <a href="{{ proj.demo_link }}" target="_blank" rel="noopener" class="btn btn-primary btn-sm">
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i> Demo
+                </a>
+                {% endif %}
+                {% if proj.github_link %}
+                <a href="{{ proj.github_link }}" target="_blank" rel="noopener" class="btn btn-ghost btn-sm">
+                    <i class="fa-brands fa-github"></i> GitHub
+                </a>
+                {% endif %}
+                {% if session.get('admin_logged_in') %}
+                <a href="{{ url_for('admin_edit_project', project_id=proj.id) }}" class="btn btn-edit-ghost btn-sm" style="margin-left:auto;">
+                    <i class="fa-solid fa-pen"></i>
+                </a>
+                {% endif %}
+            </div>
+
+        </div>
+        {% endfor %}
+    </div>
+
+    {% else %}
+    <!-- Empty -->
+    <div style="text-align:center;padding:80px 20px;">
+        <div class="empty-icon"><i class="fa-solid fa-laptop-code" style="color:var(--accent-hover);"></i></div>
+        <h2 style="font-size:20px;font-weight:700;color:var(--text-primary);margin-bottom:8px;">პროექტები ჯერ ცარიელია</h2>
+        <p style="font-size:13px;color:var(--text-muted);max-width:360px;margin:0 auto 24px;">
+            ადმინ პანელიდან შეგიძლიათ პირველი პროექტის დამატება.
+        </p>
+        {% if session.get('admin_logged_in') %}
+        <a href="{{ url_for('admin_new_project') }}" class="btn btn-primary">
+            <i class="fa-solid fa-plus"></i> პირველი პროექტი
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+
+</div>
+</div>
+{% endblock %}

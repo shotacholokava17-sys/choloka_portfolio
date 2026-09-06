@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ka" id="html-root">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}შოთა ჭოლოკავა | პორტფოლიო{% endblock %}</title>
+    <meta name="description" content="შოთა ჭოლოკავას პერსონალური ვებ-პორტფოლიო — STEM, რობოტექნიკა, პროგრამირება, AI.">
+
+    <!-- Tailwind (layout only) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Design System -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
+
+    <!-- Init theme BEFORE paint to avoid flash -->
+    <script>
+        (function() {
+            var t = localStorage.getItem('portfolio-theme') || 'dark';
+            document.documentElement.classList.add(t === 'light' ? 'light' : 'dark');
+        })();
+    </script>
+</head>
+<body>
+
+<!-- ═══════════════════════════════ NAVBAR ═══════════════════════════════ -->
+<header class="navbar">
+    <div class="navbar-inner">
+        <!-- Brand -->
+        <a href="{{ url_for('index') }}" class="navbar-brand">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="choloka logo">
+            <div class="navbar-brand-text">
+                <span class="navbar-brand-name">შოთა ჭოლოკავა</span>
+                <span class="navbar-brand-sub">Portfolio &amp; STEM</span>
+            </div>
+        </a>
+
+        <!-- Nav Links -->
+        <nav class="navbar-nav">
+            <a href="{{ url_for('index') }}" class="nav-link"><i class="fa-solid fa-house-chimney"></i> მთავარი</a>
+            <a href="{{ url_for('index') }}#activities" class="nav-link"><i class="fa-solid fa-layer-group"></i> აქტივობები</a>
+            <a href="{{ url_for('projects') }}" class="nav-link"><i class="fa-solid fa-code"></i> პროექტები</a>
+            <a href="{{ url_for('certificates') }}" class="nav-link"><i class="fa-solid fa-award"></i> სერტიფიკატები</a>
+            <a href="{{ url_for('index') }}#about" class="nav-link"><i class="fa-solid fa-user"></i> ჩემ შესახებ</a>
+            {% if session.get('admin_logged_in') %}
+            <a href="{{ url_for('admin_dashboard') }}" class="nav-link" style="color:var(--accent-hover);background:var(--accent-soft);">
+                <i class="fa-solid fa-gauge-high"></i> ადმინი
+            </a>
+            <a href="{{ url_for('admin_logout') }}" class="nav-link" style="color:var(--rose);">
+                <i class="fa-solid fa-right-from-bracket"></i>
+            </a>
+            {% endif %}
+        </nav>
+
+        <!-- Actions -->
+        <div class="navbar-actions">
+            <button class="theme-toggle" id="themeToggleBtn" aria-label="Toggle theme">
+                <i class="fa-solid fa-moon" id="icon-moon"></i>
+                <i class="fa-solid fa-sun" id="icon-sun" style="display:none;"></i>
+            </button>
+            {% if not session.get('admin_logged_in') %}
+            <a href="{{ url_for('admin_login') }}" class="btn-admin-outline">
+                <i class="fa-solid fa-shield-halved"></i> ადმინი
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</header>
+
+<!-- ═══════════════════════════════ FLASH MESSAGES ═══════════════════════════════ -->
+<div class="flash-container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+            <div class="flash-msg flash-{{ 'success' if category == 'success' else 'error' }}">
+                <i class="fa-solid {% if category == 'success' %}fa-circle-check{% else %}fa-triangle-exclamation{% endif %}"></i>
+                {{ message }}
+            </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</div>
+
+<!-- ═══════════════════════════════ MAIN CONTENT ═══════════════════════════════ -->
+<main>
+    {% block content %}{% endblock %}
+</main>
+
+<!-- ═══════════════════════════════ FOOTER ═══════════════════════════════ -->
+<footer>
+    <div class="footer-inner">
+        <div class="footer-brand">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="logo">
+            <span class="footer-copy">&copy; 2026 შოთა ჭოლოკავა — ყველა უფლება დაცულია.</span>
+        </div>
+        <div style="display:flex;gap:20px;font-size:12px;color:var(--text-muted);">
+            <span><i class="fa-solid fa-location-dot" style="color:var(--accent);margin-right:5px;"></i>ქუთაისი, საქართველო</span>
+            <span><i class="fa-solid fa-code" style="color:var(--cyan);margin-right:5px;"></i>Python &amp; Flask</span>
+        </div>
+    </div>
+</footer>
+
+<!-- ═══════════════════════════════ LIGHTBOX ═══════════════════════════════ -->
+<div id="lightboxModal">
+    <button class="lb-close" id="closeLightbox"><i class="fa-solid fa-xmark"></i></button>
+    <button class="lb-prev" id="prevLightbox"><i class="fa-solid fa-chevron-left"></i></button>
+    <button class="lb-next" id="nextLightbox"><i class="fa-solid fa-chevron-right"></i></button>
+    <div style="display:flex;flex-direction:column;align-items:center;max-width:90vw;">
+        <img id="lightboxImage" src="" alt="Gallery Image">
+    </div>
+    <div id="lightboxCaption"></div>
+</div>
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

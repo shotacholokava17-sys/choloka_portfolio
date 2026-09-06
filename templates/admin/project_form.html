@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% block title %}{% if project %}{{ project.title }} — რედაქტირება{% else %}ახალი პროექტი{% endif %} | ადმინ{% endblock %}
+
+{% block content %}
+<div class="admin-page">
+<div class="container" style="max-width:780px;">
+
+    <a href="{{ url_for('admin_dashboard') }}" style="display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:var(--text-muted);text-decoration:none;margin-bottom:28px;transition:color 0.2s;"
+       onmouseover="this.style.color='var(--accent-hover)'" onmouseout="this.style.color='var(--text-muted)'">
+        <i class="fa-solid fa-arrow-left"></i> მართვის პანელზე დაბრუნება
+    </a>
+
+    <div class="surface" style="padding:36px;">
+        <h1 style="font-size:20px;font-weight:800;color:var(--text-primary);margin-bottom:6px;display:flex;align-items:center;gap:10px;">
+            <i class="fa-solid fa-code" style="color:var(--accent-hover);"></i>
+            {% if project %}პროექტის რედაქტირება{% else %}ახალი პროექტის დამატება{% endif %}
+        </h1>
+        <p style="font-size:12px;color:var(--text-muted);margin-bottom:32px;">შეავსეთ პროექტის ინფორმაცია, ბმულები და ტექნოლოგიების სია.</p>
+
+        <form action="{% if project %}{{ url_for('admin_edit_project', project_id=project.id) }}{% else %}{{ url_for('admin_new_project') }}{% endif %}"
+              method="POST" enctype="multipart/form-data"
+              style="display:flex;flex-direction:column;gap:22px;">
+
+            <div style="display:grid;grid-template-columns:1fr 140px;gap:14px;">
+                <div>
+                    <label class="form-label">პროექტის სათაური *</label>
+                    <input type="text" name="title" class="form-input" required value="{{ project.title if project else '' }}">
+                </div>
+                <div>
+                    <label class="form-label">წელი *</label>
+                    <input type="text" name="year" class="form-input" required value="{{ project.year if project else '2026' }}">
+                </div>
+            </div>
+
+            <div>
+                <label class="form-label">ტექნოლოგიები (მძიმით გამოყოფა)</label>
+                <input type="text" name="tech_stack" class="form-input" 
+                       placeholder="Python, Flask, SQLite, Tailwind CSS..."
+                       value="{{ project.tech_stack if project else '' }}">
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+                <div>
+                    <label class="form-label">Live Demo ბმული</label>
+                    <input type="url" name="demo_link" class="form-input" placeholder="https://..."
+                           value="{{ project.demo_link if project and project.demo_link else '' }}">
+                </div>
+                <div>
+                    <label class="form-label">GitHub ბმული</label>
+                    <input type="url" name="github_link" class="form-input" placeholder="https://github.com/..."
+                           value="{{ project.github_link if project and project.github_link else '' }}">
+                </div>
+            </div>
+
+            <div>
+                <label class="form-label">მოკლე აღწერა</label>
+                <textarea name="short_desc" class="form-input" rows="3">{{ project.short_desc if project else '' }}</textarea>
+            </div>
+
+            <div>
+                <label class="form-label">Cover ფოტო</label>
+                {% if project and project.cover_image %}
+                <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:10px;background:var(--bg-elevated);border:1px solid var(--border-subtle);margin-bottom:8px;">
+                    <img src="{{ url_for('static', filename='uploads/' + project.cover_image) }}" alt="" style="width:48px;height:48px;border-radius:8px;object-fit:cover;">
+                    <span style="font-size:11px;color:var(--text-muted);">არსებული: {{ project.cover_image }}</span>
+                </div>
+                {% endif %}
+                <input type="file" name="cover_image" accept="image/*" class="form-file">
+            </div>
+
+            <div style="padding-top:8px;">
+                <button type="submit" class="btn btn-primary" style="width:100%;padding:13px;">
+                    <i class="fa-solid fa-floppy-disk"></i> პროექტის შენახვა
+                </button>
+            </div>
+
+        </form>
+    </div>
+</div>
+</div>
+{% endblock %}

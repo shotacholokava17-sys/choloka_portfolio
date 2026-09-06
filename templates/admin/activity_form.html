@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+{% block title %}{% if activity %}{{ activity.title }} — რედაქტირება{% else %}ახალი აქტივობა{% endif %} | ადმინ{% endblock %}
+
+{% block content %}
+<div class="admin-page">
+<div class="container" style="max-width:800px;">
+
+    <a href="{{ url_for('admin_dashboard') }}" style="display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:var(--text-muted);text-decoration:none;margin-bottom:28px;transition:color 0.2s;"
+       onmouseover="this.style.color='var(--accent-hover)'" onmouseout="this.style.color='var(--text-muted)'">
+        <i class="fa-solid fa-arrow-left"></i> მართვის პანელზე დაბრუნება
+    </a>
+
+    <div class="surface" style="padding:36px;">
+        <h1 style="font-size:20px;font-weight:800;color:var(--text-primary);margin-bottom:6px;display:flex;align-items:center;gap:10px;">
+            <i class="fa-solid fa-{% if activity %}pen-to-square{% else %}plus{% endif %}" style="color:var(--accent-hover);"></i>
+            {% if activity %}აქტივობის რედაქტირება{% else %}ახალი აქტივობის დამატება{% endif %}
+        </h1>
+        <p style="font-size:12px;color:var(--text-muted);margin-bottom:32px;">შეავსეთ ფორმა, ატვირთეთ ფოტოები, ვიდეოები ან Word/PDF ფაილები.</p>
+
+        <form action="{% if activity %}{{ url_for('admin_edit_activity', activity_id=activity.id) }}{% else %}{{ url_for('admin_new_activity') }}{% endif %}"
+              method="POST" enctype="multipart/form-data"
+              style="display:flex;flex-direction:column;gap:22px;">
+
+            <!-- Title -->
+            <div>
+                <label class="form-label">სათაური *</label>
+                <input type="text" name="title" class="form-input" required value="{{ activity.title if activity else '' }}">
+            </div>
+
+            <!-- Category & Year -->
+            <div style="display:grid;grid-template-columns:1fr 120px;gap:14px;">
+                <div>
+                    <label class="form-label">კატეგორია *</label>
+                    <select name="category" class="form-input" required>
+                        {% for cat in categories %}
+                        <option value="{{ cat.name }}" {% if activity and activity.category == cat.name %}selected{% endif %}>{{ cat.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label class="form-label">წელი *</label>
+                    <input type="text" name="year" class="form-input" required value="{{ activity.year if activity else '2025' }}">
+                </div>
+            </div>
+
+            <!-- External Link -->
+            <div>
+                <label class="form-label">გარე ბმული (YouTube / საიტი — სურვილისამებრ)</label>
+                <input type="url" name="external_link" class="form-input" placeholder="https://..."
+                       value="{{ activity.external_link if activity and activity.external_link else '' }}">
+            </div>
+
+            <!-- Cover Image -->
+            <div>
+                <label class="form-label">მთავარი ფოტო (Cover Image)</label>
+                {% if activity and activity.cover_image %}
+                <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:10px;background:var(--bg-elevated);border:1px solid var(--border-subtle);margin-bottom:8px;">
+                    <img src="{{ url_for('static', filename='uploads/' + activity.cover_image) }}" alt="" style="width:52px;height:52px;border-radius:8px;object-fit:cover;">
+                    <span style="font-size:11px;color:var(--text-muted);">{{ activity.cover_image }}</span>
+                </div>
+                {% endif %}
+                <input type="file" name="cover_image" accept="image/*" class="form-file">
+            </div>
+
+            <!-- Short Desc -->
+            <div>
+                <label class="form-label">მოკლე აღწერა (ბარათებისთვის)</label>
+                <textarea name="short_desc" class="form-input" rows="2">{{ activity.short_desc if activity else '' }}</textarea>
+            </div>
+
+            <!-- Full Content -->
+            <div>
+                <label class="form-label">სრული აღწერა / ისტორია</label>
+                <textarea name="content" class="form-input" rows="6">{{ activity.content if activity else '' }}</textarea>
+            </div>
+
+            <!-- Gallery Upload -->
+            <div>
+                <label class="form-label">გალერეის ფოტოების დამატება (მრავლობითი)</label>
+                <input type="file" name="gallery_images" accept="image/*" multiple class="form-file">
+            </div>
+
+            <!-- Attachments Upload -->
+            <div>
+                <label class="form-label">
+                    <i class="fa-solid fa-paperclip" style="color:var(--accent-hover);margin-right:4px;"></i>
+                    დოკუმენტები & ვიდეოები (.docx, .pdf, .pptx, .mp4 და ა.შ.)
+                </label>
+                <input type="file" name="attachment_files" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.mp4,.webm,.mov,.avi,.zip,.rar" multiple class="form-file">
+            </div>
+
+            <!-- Existing Gallery -->
+            {% if activity and activity.gallery_images %}
+            <div style="padding-top:16px;border-top:1px solid var(--border-subtle);">
+                <h3 style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:12px;">
+                    არსებული გალერეა (X-ზე დაჭერით წაიშლება):
+                </h3>
+                <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:8px;">
+                    {% for img in activity.gallery_images %}
+                    <div style="position:relative;aspect-ratio:1;border-radius:10px;overflow:hidden;border:1px solid var(--border-default);">
+                        <img src="{{ url_for('static', filename='uploads/' + img.image_path) }}" alt="" style="width:100%;height:100%;object-fit:cover;">
+                        <a href="{{ url_for('admin_delete_gallery_image', image_id=img.id) }}"
+                           onclick="return confirm('გსურთ ამ ფოტოს წაშლა?');"
+                           style="position:absolute;top:3px;right:3px;width:20px;height:20px;border-radius:50%;background:var(--rose);color:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;text-decoration:none;">
+                            <i class="fa-solid fa-xmark"></i>
+                        </a>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Existing Attachments -->
+            {% if activity and activity.attachments %}
+            <div style="padding-top:16px;border-top:1px solid var(--border-subtle);">
+                <h3 style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:12px;">
+                    არსებული ფაილები:
+                </h3>
+                <div style="display:flex;flex-direction:column;gap:8px;">
+                    {% for att in activity.attachments %}
+                    <div class="elevated" style="padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px;">
+                        <div style="display:flex;align-items:center;gap:10px;">
+                            <i class="fa-solid {% if att.file_type == 'video' %}fa-file-video{% else %}fa-file-lines{% endif %}" style="color:var(--accent-hover);"></i>
+                            <div>
+                                <div style="font-size:12px;font-weight:700;color:var(--text-primary);">{{ att.original_name }}</div>
+                                <div style="font-size:10px;color:var(--text-muted);">{{ att.file_type }}</div>
+                            </div>
+                        </div>
+                        <a href="{{ url_for('admin_delete_attachment', file_id=att.id) }}"
+                           onclick="return confirm('გსურთ ამ ფაილის წაშლა?');"
+                           class="btn btn-danger-ghost btn-sm">
+                            <i class="fa-solid fa-trash-can"></i> წაშლა
+                        </a>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Submit -->
+            <div style="padding-top:8px;">
+                <button type="submit" class="btn btn-primary" style="width:100%;padding:13px;">
+                    <i class="fa-solid fa-floppy-disk"></i> შენახვა
+                </button>
+            </div>
+
+        </form>
+    </div>
+</div>
+</div>
+{% endblock %}

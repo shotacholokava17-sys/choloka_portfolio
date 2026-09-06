@@ -1,0 +1,218 @@
+{% extends 'base.html' %}
+{% block title %}მართვის პანელი | ადმინ{% endblock %}
+
+{% block content %}
+<div class="admin-page">
+<div class="container">
+
+    <!-- Page Header -->
+    <div class="surface" style="padding:24px 28px;margin-bottom:28px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px;">
+        <div>
+            <h1 style="font-size:22px;font-weight:800;color:var(--text-primary);display:flex;align-items:center;gap:10px;">
+                <i class="fa-solid fa-gauge-high" style="color:var(--accent-hover);"></i> მართვის პანელი
+            </h1>
+            <p style="font-size:12px;color:var(--text-muted);margin-top:4px;">
+                გამარჯობა, <strong style="color:var(--text-primary);">admin</strong> — ყველა განყოფილება ერთ ადგილზე.
+            </p>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;">
+            <a href="{{ url_for('admin_profile') }}" class="btn btn-ghost btn-sm">
+                <i class="fa-solid fa-user-pen" style="color:#a855f7;"></i> "ჩემ შესახებ"
+            </a>
+            <a href="{{ url_for('admin_new_project') }}" class="btn btn-ghost btn-sm">
+                <i class="fa-solid fa-code" style="color:var(--accent-hover);"></i> + პროექტი
+            </a>
+            <a href="{{ url_for('admin_new_certificate') }}" class="btn btn-ghost btn-sm">
+                <i class="fa-solid fa-award" style="color:var(--amber);"></i> + სერტიფიკატი
+            </a>
+            <a href="{{ url_for('admin_new_activity') }}" class="btn btn-primary btn-sm">
+                <i class="fa-solid fa-plus"></i> + აქტივობა
+            </a>
+            <a href="{{ url_for('admin_categories') }}" class="btn btn-ghost btn-sm">
+                <i class="fa-solid fa-tags"></i>
+            </a>
+        </div>
+    </div>
+
+    <!-- Stats Row -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px;margin-bottom:28px;">
+        <div class="stat-card" style="text-align:left;display:flex;align-items:center;gap:14px;">
+            <div style="width:44px;height:44px;border-radius:12px;background:var(--accent-soft);border:1px solid var(--accent-border);display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--accent-hover);flex-shrink:0;">
+                <i class="fa-solid fa-folder-open"></i>
+            </div>
+            <div>
+                <div class="stat-value" style="font-size:22px;color:var(--text-primary);">{{ activities|length }}</div>
+                <div class="stat-label">აქტივობები</div>
+            </div>
+        </div>
+        <div class="stat-card" style="text-align:left;display:flex;align-items:center;gap:14px;">
+            <div style="width:44px;height:44px;border-radius:12px;background:var(--cyan-soft);border:1px solid rgba(34,211,238,0.2);display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--cyan);flex-shrink:0;">
+                <i class="fa-solid fa-code"></i>
+            </div>
+            <div>
+                <div class="stat-value" style="font-size:22px;color:var(--text-primary);">{{ projects|length }}</div>
+                <div class="stat-label">პროექტები</div>
+            </div>
+        </div>
+        <div class="stat-card" style="text-align:left;display:flex;align-items:center;gap:14px;">
+            <div style="width:44px;height:44px;border-radius:12px;background:var(--amber-soft);border:1px solid rgba(245,158,11,0.2);display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--amber);flex-shrink:0;">
+                <i class="fa-solid fa-award"></i>
+            </div>
+            <div>
+                <div class="stat-value" style="font-size:22px;color:var(--text-primary);">{{ certificates|length }}</div>
+                <div class="stat-label">სერტიფიკატები</div>
+            </div>
+        </div>
+        <div class="stat-card" style="text-align:left;display:flex;align-items:center;gap:14px;">
+            <div style="width:44px;height:44px;border-radius:12px;background:var(--emerald-soft);border:1px solid rgba(16,185,129,0.2);display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--emerald);flex-shrink:0;">
+                <i class="fa-solid fa-images"></i>
+            </div>
+            <div>
+                <div class="stat-value" style="font-size:22px;color:var(--text-primary);">{{ total_gallery_count }}</div>
+                <div class="stat-label">გალერეის ფოტოები</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Projects Table -->
+    <div class="surface" style="margin-bottom:20px;overflow:hidden;">
+        <div style="padding:20px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border-subtle);">
+            <h2 style="font-size:15px;font-weight:700;color:var(--text-primary);display:flex;align-items:center;gap:8px;">
+                <i class="fa-solid fa-code" style="color:var(--accent-hover);"></i> პროექტები ({{ projects|length }})
+            </h2>
+            <a href="{{ url_for('admin_new_project') }}" style="font-size:11px;font-weight:700;color:var(--accent-hover);text-decoration:none;">+ ახალი</a>
+        </div>
+        {% if projects %}
+        <div style="overflow-x:auto;">
+            <table class="data-table">
+                <thead><tr>
+                    <th>ფოტო</th><th>სათაური</th><th>Tech Stack</th><th>წელი</th><th style="text-align:right;">მოქმედება</th>
+                </tr></thead>
+                <tbody>
+                {% for proj in projects %}
+                <tr>
+                    <td>
+                        {% if proj.cover_image %}
+                        <img src="{{ url_for('static', filename='uploads/' + proj.cover_image) }}" alt="" style="width:40px;height:40px;border-radius:8px;object-fit:cover;">
+                        {% else %}
+                        <div style="width:40px;height:40px;border-radius:8px;background:var(--bg-elevated);display:flex;align-items:center;justify-content:center;color:var(--text-dim);font-size:14px;"><i class="fa-solid fa-code"></i></div>
+                        {% endif %}
+                    </td>
+                    <td style="font-weight:700;color:var(--text-primary);">{{ proj.title }}</td>
+                    <td>{{ proj.tech_stack or '—' }}</td>
+                    <td style="font-weight:700;color:var(--accent-hover);">{{ proj.year }}</td>
+                    <td style="text-align:right;">
+                        <div style="display:flex;gap:6px;justify-content:flex-end;">
+                            <a href="{{ url_for('admin_edit_project', project_id=proj.id) }}" class="btn btn-edit-ghost btn-sm">ჩასწორება</a>
+                            <form action="{{ url_for('admin_delete_project', project_id=proj.id) }}" method="POST" style="display:inline;" onsubmit="return confirm('წაიშალოს?');">
+                                <button type="submit" class="btn btn-danger-ghost btn-sm">წაშლა</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p style="padding:24px;font-size:12px;color:var(--text-muted);">პროექტები ჯერ ცარიელია.</p>
+        {% endif %}
+    </div>
+
+    <!-- Certificates Table -->
+    <div class="surface" style="margin-bottom:20px;overflow:hidden;">
+        <div style="padding:20px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border-subtle);">
+            <h2 style="font-size:15px;font-weight:700;color:var(--text-primary);display:flex;align-items:center;gap:8px;">
+                <i class="fa-solid fa-award" style="color:var(--amber);"></i> სერტიფიკატები ({{ certificates|length }})
+            </h2>
+            <a href="{{ url_for('admin_new_certificate') }}" style="font-size:11px;font-weight:700;color:var(--amber);text-decoration:none;">+ ახალი</a>
+        </div>
+        {% if certificates %}
+        <div style="overflow-x:auto;">
+            <table class="data-table">
+                <thead><tr>
+                    <th>ფოტო</th><th>სათაური</th><th>გამცემი</th><th>წელი</th><th style="text-align:right;">მოქმედება</th>
+                </tr></thead>
+                <tbody>
+                {% for cert in certificates %}
+                <tr>
+                    <td>
+                        {% if cert.image_path %}
+                        <img src="{{ url_for('static', filename='uploads/' + cert.image_path) }}" alt="" style="width:40px;height:40px;border-radius:8px;object-fit:cover;">
+                        {% else %}
+                        <div style="width:40px;height:40px;border-radius:8px;background:var(--amber-soft);display:flex;align-items:center;justify-content:center;color:var(--amber);font-size:14px;"><i class="fa-solid fa-certificate"></i></div>
+                        {% endif %}
+                    </td>
+                    <td style="font-weight:700;color:var(--text-primary);">{{ cert.title }}</td>
+                    <td>{{ cert.issuer or '—' }}</td>
+                    <td style="font-weight:700;color:var(--amber);">{{ cert.year }}</td>
+                    <td style="text-align:right;">
+                        <div style="display:flex;gap:6px;justify-content:flex-end;">
+                            <a href="{{ url_for('admin_edit_certificate', cert_id=cert.id) }}" class="btn btn-edit-ghost btn-sm">ჩასწორება</a>
+                            <form action="{{ url_for('admin_delete_certificate', cert_id=cert.id) }}" method="POST" style="display:inline;" onsubmit="return confirm('წაიშალოს?');">
+                                <button type="submit" class="btn btn-danger-ghost btn-sm">წაშლა</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p style="padding:24px;font-size:12px;color:var(--text-muted);">სერტიფიკატები ჯერ ცარიელია.</p>
+        {% endif %}
+    </div>
+
+    <!-- Activities Table -->
+    <div class="surface" style="overflow:hidden;">
+        <div style="padding:20px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border-subtle);">
+            <h2 style="font-size:15px;font-weight:700;color:var(--text-primary);display:flex;align-items:center;gap:8px;">
+                <i class="fa-solid fa-folder-open" style="color:var(--accent-hover);"></i> აქტივობები ({{ activities|length }})
+            </h2>
+            <a href="{{ url_for('admin_new_activity') }}" style="font-size:11px;font-weight:700;color:var(--accent-hover);text-decoration:none;">+ ახალი</a>
+        </div>
+        <div style="overflow-x:auto;">
+            <table class="data-table">
+                <thead><tr>
+                    <th>ფოტო</th><th>სათაური</th><th>კატეგორია</th><th>წელი</th><th>ფოტო</th><th>ფაილი</th><th style="text-align:right;">მოქმედება</th>
+                </tr></thead>
+                <tbody>
+                {% for act in activities %}
+                <tr>
+                    <td>
+                        {% if act.cover_image %}
+                        <img src="{{ url_for('static', filename='uploads/' + act.cover_image) }}" alt="" style="width:40px;height:40px;border-radius:8px;object-fit:cover;">
+                        {% else %}
+                        <div style="width:40px;height:40px;border-radius:8px;background:var(--bg-elevated);display:flex;align-items:center;justify-content:center;color:var(--text-dim);font-size:14px;"><i class="fa-solid fa-image"></i></div>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{{ url_for('activity_detail', activity_id=act.id) }}" target="_blank"
+                           style="font-weight:700;color:var(--text-primary);text-decoration:none;font-size:12px;"
+                           onmouseover="this.style.color='var(--accent-hover)'" onmouseout="this.style.color='var(--text-primary)'">
+                            {{ act.title[:50] }}{% if act.title|length > 50 %}…{% endif %}
+                        </a>
+                    </td>
+                    <td><span class="badge badge-accent" style="font-size:9px;">{{ act.category }}</span></td>
+                    <td style="font-weight:700;color:var(--text-secondary);">{{ act.year }}</td>
+                    <td style="font-weight:700;color:var(--accent-hover);">{{ act.gallery_images|length }}</td>
+                    <td style="font-weight:700;color:var(--cyan);">{{ act.attachments|length }}</td>
+                    <td style="text-align:right;">
+                        <div style="display:flex;gap:6px;justify-content:flex-end;">
+                            <a href="{{ url_for('admin_edit_activity', activity_id=act.id) }}" class="btn btn-edit-ghost btn-sm">ჩასწ.</a>
+                            <form action="{{ url_for('admin_delete_activity', activity_id=act.id) }}" method="POST" style="display:inline;" onsubmit="return confirm('ნამდვილად წაიშალოს?');">
+                                <button type="submit" class="btn btn-danger-ghost btn-sm">წაშლა</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+</div>
+{% endblock %}

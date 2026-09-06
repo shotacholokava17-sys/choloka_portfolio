@@ -1,0 +1,157 @@
+{% extends 'base.html' %}
+{% block title %}{{ activity.title }} | შოთა ჭოლოკავა{% endblock %}
+
+{% block content %}
+<div style="padding:48px 0;">
+    <div class="container" style="max-width:900px;">
+
+        <!-- Back -->
+        <a href="{{ url_for('index') }}" style="display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:var(--text-muted);text-decoration:none;margin-bottom:32px;transition:color 0.2s;" 
+           onmouseover="this.style.color='var(--accent-hover)'" onmouseout="this.style.color='var(--text-muted)'">
+            <i class="fa-solid fa-arrow-left"></i> მთავარ გვერდზე
+        </a>
+
+        <!-- Title Section -->
+        <div style="margin-bottom:32px;">
+            <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;">
+                <span class="badge badge-accent">{{ activity.category }}</span>
+                <span class="badge badge-cyan"><i class="fa-solid fa-calendar"></i> {{ activity.year }}</span>
+            </div>
+            <h1 style="font-size:clamp(26px,4vw,44px);font-weight:900;letter-spacing:-0.02em;line-height:1.15;color:var(--text-primary);margin-bottom:16px;">
+                {{ activity.title }}
+            </h1>
+            {% if activity.external_link %}
+            <a href="{{ activity.external_link }}" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="font-size:12px;">
+                <i class="fa-solid fa-arrow-up-right-from-square"></i> პროექტის / ბმულის გახსნა
+            </a>
+            {% endif %}
+        </div>
+
+        <!-- Cover Image -->
+        {% if activity.cover_image %}
+        <div style="position:relative;aspect-ratio:16/9;border-radius:20px;overflow:hidden;border:1px solid var(--border-default);box-shadow:var(--shadow-lg);margin-bottom:32px;cursor:pointer;" class="img-zoom-wrap">
+            <img class="img-zoom gallery-thumb" 
+                 src="{{ url_for('static', filename='uploads/' + activity.cover_image) }}" 
+                 alt="{{ activity.title }}"
+                 style="width:100%;height:100%;object-fit:cover;"
+                 data-src="{{ url_for('static', filename='uploads/' + activity.cover_image) }}"
+                 data-caption="{{ activity.title }} (მთავარი ფოტო)">
+            <div style="position:absolute;bottom:14px;right:14px;padding:6px 12px;border-radius:8px;background:rgba(0,0,0,0.65);backdrop-filter:blur(8px);font-size:11px;color:rgba(255,255,255,0.8);pointer-events:none;">
+                <i class="fa-solid fa-expand" style="margin-right:5px;"></i>გასადიდებლად
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Content -->
+        <div class="surface" style="padding:32px;margin-bottom:24px;">
+            <h2 style="font-size:16px;font-weight:700;color:var(--text-primary);display:flex;align-items:center;gap:10px;padding-bottom:16px;border-bottom:1px solid var(--border-subtle);margin-bottom:20px;">
+                <i class="fa-solid fa-book-open" style="color:var(--accent);"></i> აღწერა & ისტორია
+            </h2>
+            <div style="font-size:15px;line-height:1.8;color:var(--text-secondary);white-space:pre-line;">
+                {{ activity.content or activity.short_desc }}
+            </div>
+        </div>
+
+        <!-- Attachments -->
+        {% if activity.attachments %}
+        <div class="surface" style="padding:32px;margin-bottom:24px;">
+            <h2 style="font-size:16px;font-weight:700;color:var(--text-primary);display:flex;align-items:center;gap:10px;padding-bottom:16px;border-bottom:1px solid var(--border-subtle);margin-bottom:20px;">
+                <i class="fa-solid fa-paperclip" style="color:var(--cyan);"></i> 
+                მიმაგრებული ფაილები 
+                <span style="font-size:11px;font-weight:500;color:var(--text-muted);">({{ activity.attachments|length }} ფაილი)</span>
+            </h2>
+            <div style="display:flex;flex-direction:column;gap:12px;">
+                {% for att in activity.attachments %}
+                {% if att.file_type == 'video' %}
+                <div class="elevated" style="padding:16px;">
+                    <div style="display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:var(--accent-hover);margin-bottom:10px;">
+                        <i class="fa-solid fa-circle-play"></i> {{ att.original_name }}
+                    </div>
+                    <video controls style="width:100%;border-radius:12px;max-height:400px;background:#000;">
+                        <source src="{{ url_for('static', filename='uploads/' + att.file_path) }}" type="video/mp4">
+                    </video>
+                </div>
+                {% else %}
+                <div class="elevated" style="padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;">
+                    <div style="display:flex;align-items:center;gap:12px;">
+                        <div style="width:40px;height:40px;border-radius:10px;background:var(--accent-soft);border:1px solid var(--accent-border);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">
+                            {% if att.original_name.endswith('.pdf') %}<i class="fa-solid fa-file-pdf" style="color:#ef4444;"></i>
+                            {% elif att.original_name.endswith(('.doc','.docx')) %}<i class="fa-solid fa-file-word" style="color:#3b82f6;"></i>
+                            {% elif att.original_name.endswith(('.ppt','.pptx')) %}<i class="fa-solid fa-file-powerpoint" style="color:var(--amber);"></i>
+                            {% else %}<i class="fa-solid fa-file" style="color:var(--cyan);"></i>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <div style="font-size:13px;font-weight:700;color:var(--text-primary);" class="line-clamp-1">{{ att.original_name }}</div>
+                            <div style="font-size:10px;color:var(--text-muted);">დოკუმენტი / ფაილი</div>
+                        </div>
+                    </div>
+                    <a href="{{ url_for('static', filename='uploads/' + att.file_path) }}" target="_blank" download="{{ att.original_name }}" class="btn btn-ghost btn-sm" style="white-space:nowrap;">
+                        <i class="fa-solid fa-download"></i> ჩამოტვირთვა
+                    </a>
+                </div>
+                {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Gallery -->
+        {% if activity.gallery_images %}
+        <div style="margin-bottom:32px;">
+            <h2 style="font-size:20px;font-weight:800;color:var(--text-primary);display:flex;align-items:center;gap:10px;margin-bottom:20px;">
+                <i class="fa-solid fa-images" style="color:var(--cyan);"></i> ფოტოგალერეა
+                <span style="font-size:12px;font-weight:500;color:var(--text-muted);">({{ activity.gallery_images|length }} ფოტო)</span>
+            </h2>
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;">
+                {% for img in activity.gallery_images %}
+                <div style="position:relative;aspect-ratio:1;border-radius:14px;overflow:hidden;border:1px solid var(--border-default);cursor:pointer;" class="img-zoom-wrap">
+                    <img class="img-zoom gallery-thumb"
+                         src="{{ url_for('static', filename='uploads/' + img.image_path) }}" 
+                         alt="{{ activity.title }}"
+                         style="width:100%;height:100%;object-fit:cover;"
+                         data-src="{{ url_for('static', filename='uploads/' + img.image_path) }}"
+                         data-caption="{{ img.caption or activity.title }}">
+                    <div style="position:absolute;inset:0;background:rgba(0,0,0,0.4);opacity:0;transition:opacity 0.2s;display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px;"
+                         onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0'">
+                        <i class="fa-solid fa-magnifying-glass-plus"></i>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Related -->
+        {% if related_activities %}
+        <div style="padding-top:32px;border-top:1px solid var(--border-subtle);">
+            <h3 style="font-size:18px;font-weight:700;color:var(--text-primary);margin-bottom:16px;">
+                სხვა დაკავშირებული აქტივობები
+            </h3>
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;">
+                {% for rel in related_activities %}
+                <a href="{{ url_for('activity_detail', activity_id=rel.id) }}" 
+                   style="display:flex;align-items:center;gap:14px;padding:14px;border-radius:14px;border:1px solid var(--border-default);background:var(--bg-surface);text-decoration:none;transition:border-color 0.2s,background 0.2s;"
+                   onmouseover="this.style.borderColor='var(--accent-border)';this.style.background='var(--bg-elevated)'"
+                   onmouseout="this.style.borderColor='var(--border-default)';this.style.background='var(--bg-surface)'">
+                    {% if rel.cover_image %}
+                    <img src="{{ url_for('static', filename='uploads/' + rel.cover_image) }}" alt="{{ rel.title }}"
+                         style="width:52px;height:52px;border-radius:10px;object-fit:cover;flex-shrink:0;">
+                    {% else %}
+                    <div style="width:52px;height:52px;border-radius:10px;background:var(--bg-elevated);display:flex;align-items:center;justify-content:center;color:var(--text-muted);flex-shrink:0;">
+                        <i class="fa-solid fa-image"></i>
+                    </div>
+                    {% endif %}
+                    <div style="overflow:hidden;">
+                        <div style="font-size:13px;font-weight:700;color:var(--text-primary);" class="line-clamp-1">{{ rel.title }}</div>
+                        <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">{{ rel.category }} • {{ rel.year }}</div>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+    </div>
+</div>
+{% endblock %}

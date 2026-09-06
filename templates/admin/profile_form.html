@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+{% block title %}"ჩემ შესახებ" რედაქტირება | ადმინ{% endblock %}
+
+{% block content %}
+<div class="admin-page">
+<div class="container" style="max-width:800px;">
+
+    <a href="{{ url_for('admin_dashboard') }}" style="display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:var(--text-muted);text-decoration:none;margin-bottom:28px;transition:color 0.2s;"
+       onmouseover="this.style.color='var(--accent-hover)'" onmouseout="this.style.color='var(--text-muted)'">
+        <i class="fa-solid fa-arrow-left"></i> მართვის პანელზე დაბრუნება
+    </a>
+
+    <div class="surface" style="padding:36px;">
+        <h1 style="font-size:20px;font-weight:800;color:var(--text-primary);margin-bottom:6px;display:flex;align-items:center;gap:10px;">
+            <i class="fa-solid fa-user-pen" style="color:#a855f7;"></i> "ჩემ შესახებ" სექციის რედაქტირება
+        </h1>
+        <p style="font-size:12px;color:var(--text-muted);margin-bottom:32px;">შეცვალეთ ბიოგრაფია, სათაურები, სტატისტიკა და პროფილის ბარათის ინფო.</p>
+
+        <form action="{{ url_for('admin_profile') }}" method="POST" enctype="multipart/form-data"
+              style="display:flex;flex-direction:column;gap:22px;">
+
+            <!-- Name & School -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+                <div>
+                    <label class="form-label">სრული სახელი *</label>
+                    <input type="text" name="full_name" class="form-input" required value="{{ profile.full_name }}">
+                </div>
+                <div>
+                    <label class="form-label">სკოლა / ორგანიზაცია</label>
+                    <input type="text" name="school_info" class="form-input" value="{{ profile.school_info }}">
+                </div>
+            </div>
+
+            <!-- Badge & Status -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+                <div>
+                    <label class="form-label">ზედა ბეჯის ტექსტი</label>
+                    <input type="text" name="title_badge" class="form-input" value="{{ profile.title_badge }}">
+                </div>
+                <div>
+                    <label class="form-label">სტატუსის ბეჯი</label>
+                    <input type="text" name="status_badge" class="form-input" value="{{ profile.status_badge }}">
+                </div>
+            </div>
+
+            <!-- Main Heading -->
+            <div>
+                <label class="form-label">მთავარი სათაური (Heading)</label>
+                <input type="text" name="main_heading" class="form-input" value="{{ profile.main_heading }}">
+            </div>
+
+            <!-- Avatar Upload -->
+            <div>
+                <label class="form-label">პროფილის ფოტო / ავატარი</label>
+                {% if profile.avatar_image %}
+                <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:10px;background:var(--bg-elevated);border:1px solid var(--border-subtle);margin-bottom:8px;">
+                    <img src="{{ url_for('static', filename='uploads/' + profile.avatar_image) }}" alt="" style="width:48px;height:48px;border-radius:8px;object-fit:cover;">
+                    <span style="font-size:11px;color:var(--text-muted);">{{ profile.avatar_image }}</span>
+                </div>
+                {% endif %}
+                <input type="file" name="avatar_image" accept="image/*" class="form-file">
+            </div>
+
+            <!-- Bio -->
+            <div>
+                <label class="form-label">ბიოგრაფია / სრული აღწერა</label>
+                <textarea name="bio_text" class="form-input" rows="5">{{ profile.bio_text }}</textarea>
+            </div>
+
+            <!-- Stats -->
+            <div style="padding-top:16px;border-top:1px solid var(--border-subtle);">
+                <h3 style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:14px;">სტატისტიკის 3 ბლოკი</h3>
+                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;">
+                    <div style="display:flex;flex-direction:column;gap:8px;">
+                        <input type="text" name="stat_1_val" class="form-input" style="font-weight:800;font-size:16px;text-align:center;" placeholder="50+" value="{{ profile.stat_1_val }}">
+                        <input type="text" name="stat_1_lbl" class="form-input" style="font-size:11px;" placeholder="აღწერა" value="{{ profile.stat_1_lbl }}">
+                    </div>
+                    <div style="display:flex;flex-direction:column;gap:8px;">
+                        <input type="text" name="stat_2_val" class="form-input" style="font-weight:800;font-size:16px;text-align:center;" placeholder="1-ლი" value="{{ profile.stat_2_val }}">
+                        <input type="text" name="stat_2_lbl" class="form-input" style="font-size:11px;" placeholder="აღწერა" value="{{ profile.stat_2_lbl }}">
+                    </div>
+                    <div style="display:flex;flex-direction:column;gap:8px;">
+                        <input type="text" name="stat_3_val" class="form-input" style="font-weight:800;font-size:16px;text-align:center;" placeholder="2026" value="{{ profile.stat_3_val }}">
+                        <input type="text" name="stat_3_lbl" class="form-input" style="font-size:11px;" placeholder="აღწერა" value="{{ profile.stat_3_lbl }}">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Roles -->
+            <div style="padding-top:16px;border-top:1px solid var(--border-subtle);">
+                <h3 style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:14px;">პროფილის ბარათის 4 ხაზი</h3>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+                    <div>
+                        <label class="form-label" style="color:var(--accent-hover);">ხაზი 1 (ნაკრები/როლი)</label>
+                        <input type="text" name="role_1" class="form-input" value="{{ profile.role_1 }}">
+                    </div>
+                    <div>
+                        <label class="form-label" style="color:var(--cyan);">ხაზი 2 (კურსი/განათლება)</label>
+                        <input type="text" name="role_2" class="form-input" value="{{ profile.role_2 }}">
+                    </div>
+                    <div>
+                        <label class="form-label" style="color:var(--amber);">ხაზი 3 (მიღწევა)</label>
+                        <input type="text" name="role_3" class="form-input" value="{{ profile.role_3 }}">
+                    </div>
+                    <div>
+                        <label class="form-label" style="color:var(--emerald);">ხაზი 4 (სპორტი/ჰობი)</label>
+                        <input type="text" name="role_4" class="form-input" value="{{ profile.role_4 }}">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit -->
+            <div style="padding-top:8px;">
+                <button type="submit" class="btn btn-primary" style="width:100%;padding:13px;">
+                    <i class="fa-solid fa-floppy-disk"></i> პროფილის ცვლილებების შენახვა
+                </button>
+            </div>
+
+        </form>
+    </div>
+</div>
+</div>
+{% endblock %}

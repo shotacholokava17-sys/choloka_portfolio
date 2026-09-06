@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% block title %}დიპლომები & სერტიფიკატები | შოთა ჭოლოკავა{% endblock %}
+
+{% block content %}
+<div class="page-section">
+<div class="container">
+
+    <!-- Header -->
+    <div style="display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:40px;padding-bottom:32px;border-bottom:1px solid var(--border-subtle);">
+        <div>
+            <div class="section-tag amber"><i class="fa-solid fa-award"></i> ACHIEVEMENTS & CERTIFICATES</div>
+            <h1 class="page-title">დიპლომები & <span class="gradient-text">სერტიფიკატები</span></h1>
+            <p style="color:var(--text-muted);font-size:13px;margin-top:8px;max-width:560px;">
+                ეროვნულ და საერთაშორისო ოლიმპიადებში, კონფერენციებსა და აკადემიებში მოპოვებული დიპლომები, სიგელები და სერტიფიკატები.
+            </p>
+        </div>
+        {% if session.get('admin_logged_in') %}
+        <a href="{{ url_for('admin_new_certificate') }}" class="btn btn-amber">
+            <i class="fa-solid fa-plus"></i> ახალი სერტიფიკატი
+        </a>
+        {% endif %}
+    </div>
+
+    <!-- Certs Grid -->
+    {% if certificates %}
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:24px;">
+        {% for cert in certificates %}
+        <div class="card" style="display:flex;flex-direction:column;">
+
+            <!-- Image -->
+            <div style="position:relative;aspect-ratio:4/3;overflow:hidden;background:var(--bg-elevated);cursor:pointer;" class="img-zoom-wrap">
+                {% if cert.image_path %}
+                <img class="img-zoom gallery-thumb"
+                     src="{{ url_for('static', filename='uploads/' + cert.image_path) }}" alt="{{ cert.title }}"
+                     style="width:100%;height:100%;object-fit:cover;"
+                     data-src="{{ url_for('static', filename='uploads/' + cert.image_path) }}"
+                     data-caption="{{ cert.title }} — {{ cert.issuer or '' }}">
+                <div style="position:absolute;inset:0;background:rgba(0,0,0,0.4);opacity:0;transition:opacity 0.2s;display:flex;align-items:center;justify-content:center;color:#fff;font-size:22px;"
+                     onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0'">
+                    <i class="fa-solid fa-magnifying-glass-plus"></i>
+                </div>
+                {% else %}
+                <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:48px;background:linear-gradient(135deg,#78350f,var(--bg-elevated));color:var(--amber);">
+                    <i class="fa-solid fa-certificate"></i>
+                </div>
+                {% endif %}
+
+                <span style="position:absolute;top:12px;right:12px;padding:4px 10px;border-radius:8px;background:rgba(8,12,20,0.80);backdrop-filter:blur(8px);font-size:10px;font-weight:700;color:var(--amber);border:1px solid rgba(245,158,11,0.30);">
+                    {{ cert.year }}
+                </span>
+            </div>
+
+            <!-- Info -->
+            <div style="padding:20px;flex:1;display:flex;flex-direction:column;gap:10px;">
+                <h3 style="font-size:14px;font-weight:800;color:var(--text-primary);">{{ cert.title }}</h3>
+                {% if cert.issuer %}
+                <p style="font-size:11px;font-weight:600;color:var(--accent-hover);display:flex;align-items:center;gap:6px;">
+                    <i class="fa-solid fa-building-columns"></i> {{ cert.issuer }}
+                </p>
+                {% endif %}
+                {% if cert.short_desc %}
+                <p style="font-size:12px;color:var(--text-secondary);line-height:1.6;" class="line-clamp-3">{{ cert.short_desc }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Actions -->
+            <div style="padding:12px 20px;border-top:1px solid var(--border-subtle);display:flex;gap:8px;justify-content:space-between;align-items:center;">
+                {% if cert.image_path %}
+                <button class="btn btn-ghost btn-sm gallery-thumb"
+                        data-src="{{ url_for('static', filename='uploads/' + cert.image_path) }}"
+                        data-caption="{{ cert.title }}"
+                        style="flex:1;">
+                    <i class="fa-solid fa-expand"></i> სერტიფიკატის ნახვა
+                </button>
+                {% else %}
+                <span style="font-size:11px;color:var(--text-muted);">ფოტო არ არის ატვირთული</span>
+                {% endif %}
+                {% if session.get('admin_logged_in') %}
+                <a href="{{ url_for('admin_edit_certificate', cert_id=cert.id) }}" class="btn btn-edit-ghost btn-sm">
+                    <i class="fa-solid fa-pen"></i>
+                </a>
+                {% endif %}
+            </div>
+
+        </div>
+        {% endfor %}
+    </div>
+
+    {% else %}
+    <div style="text-align:center;padding:80px 20px;">
+        <div class="empty-icon"><i class="fa-solid fa-award" style="color:var(--amber);"></i></div>
+        <h2 style="font-size:20px;font-weight:700;color:var(--text-primary);margin-bottom:8px;">სერტიფიკატები ჯერ ცარიელია</h2>
+        <p style="font-size:13px;color:var(--text-muted);max-width:360px;margin:0 auto 24px;">
+            ადმინ პანელიდან შეგიძლიათ სერტიფიკატებისა და დიპლომების დამატება.
+        </p>
+        {% if session.get('admin_logged_in') %}
+        <a href="{{ url_for('admin_new_certificate') }}" class="btn btn-amber">
+            <i class="fa-solid fa-plus"></i> პირველი სერტიფიკატი
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+
+</div>
+</div>
+{% endblock %}
